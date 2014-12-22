@@ -16,13 +16,7 @@
  	return jBean( select_string );
  }
 
- function jBean( select_string )
- {
-	if(typeof select_string  === 'string')
-	{
-		return new jBeanManager(select_string);
-	}
- }
+ function jBean( select_string ) { return new jBeanManager(select_string); }
  
 //function XMLHttp( init_function )
 //{
@@ -87,14 +81,18 @@ Helper.prototype.getType = function()
 
 function jBeanManager( select_string )
 {
-	var args = new Array();
-	var monoQuery = select_string.split(' ');
-	monoQuery.forEach(function(element) {
-		if(element.length > 0)
-			args.push(new Helper(element));
-	});
-	this.args = args;
-	this.entities = this.executeQuery();
+	if( typeof select_string !== "string" ) { this.entities = select_string; }
+	else
+	{
+		var args = new Array();
+		var monoQuery = select_string.split(' ');
+		monoQuery.forEach(function(element) {
+			if(element.length > 0)
+				args.push(new Helper(element));
+		});
+		this.args = args;
+		this.entities = this.executeQuery();
+	}
 }
 
 jBeanManager.prototype.getArguments = function()
@@ -136,50 +134,73 @@ jBeanManager.prototype.html = function(HTML)
 		return this.targetEntity().innerHTML;
 }
 
+jBeanManager.prototype.text = function(text)
+{ 
+	if( text )
+		return this.setPropDynamically('innerText', text);
+	else
+		return this.targetEntity().innerText;
+}
+
 jBeanManager.prototype.css = function( attr, value )
 {
 	if(attr && value)
-		return setPropDynamically( attr, value );
-	else if( attr ) { return this.targetEntity().style[attr]; }
+		return this.setPropDynamically( ['style', attr], value );
+	else if( attr ) { return this.targetEntity().style[attr] || getComputedStyle(this.targetEntity())[attr]; }
 	return undefined;
 }
 
+jBeanManager.prototype.attr = function( attr, value )
+{ 
+	if(attr && value)
+		return this.setPropDynamically( attr, value );
+	else if( attr && !value )
+		return this.targetEntity()[attr];
+}
 
-jBeanManager.prototype.setPropDynamically = function( prop, value )
+jBeanManager.prototype.append = function( data )
+{
+	return this.setPropDynamically('innerHTML', data, 1);
+}
+
+jBeanManager.prototype.prepend = function( data )
+{
+	return this.setPropDynamically('innerHTML', data, -1);
+}
+
+jBeanManager.prototype.remove = function()
+{
+	if(!this.entitiesNotAlone) this.entities = new Array(this.entities);
+	this.entities.forEach( function(entity) {
+		entity.remove();
+	});
+}
+
+jBeanManager.prototype.replaceBy = function(DOMElement)
+{
+
+	if(DOMElement.hasOwnProperty('entities'))
+		DOMElement = DOMElement.targetEntity();
+	return this.targetEntity().parentNode.replaceChild(DOMElement, this.targetEntity());
+}
+
+jBeanManager.prototype.setPropDynamically = function( prop, value, add )
 {
 	if(this.entitiesNotAlone())
 	{
 		this.entities.forEach(function(entity) {
-			_STAT._PROP_INSERT_(entity, prop, value);
+			_STAT._PROP_INSERT_(entity, prop, value, add || 0);
 		});
 	}
 
 	else
-		_STAT._PROP_INSERT_(this.entities, prop, value);
+		_STAT._PROP_INSERT_(this.entities, prop, value, add || 0);
 
 	return this.entities;
 }
 
-jBeanManager.prototype.attr = function( attr, value )
-{// 
-	// if(attr && value)
-		// this.targetEntity.
-}
-
-
 jBeanManager.prototype.on = function(type, func)
-{
-	var supported_action_listeners = 
-	[
-		"click",
-		"doubleclick",
-		"mousedown",
-		"mouseover",
-		"mouseleave",
-		"keyup",
-		"keydown"	
-	];
-	
+{	
 	var ActionListeners = new Array();
 	if(this.entitiesNotAlone())
 	{
@@ -204,7 +225,24 @@ function ActionListener(DOMElement, type, func)
 
 ActionListener.prototype.create = function()
 {
-	
+	var supported_action_listeners = 
+	{
+		"click": "click",
+		"doubleclick": "doubleclick",
+		"mousedown": "mousedown",
+		"mouseover": "mouseover",
+		"mouseleave": "mouseleave",
+		"keyup": "keyup",
+		"keydown": "keydown",
+		"load":	"#onload",
+		"ready": "DOMContentLoaded"
+	};
+
+	if(supported_action_listeners[this.type] === undefined) return!1;
+	if(supported_action_listeners[this.type][0] === '#')
+		return this.DOMElement[supported_action_listeners[this.type].slice(1)] = this.func;
+	else
+		return this.DOMElement.addEventListener(supported_action_listeners[this.type], this.func);
 }
 
 function _STAT() {}
@@ -216,22 +254,32 @@ _STAT._OPEN_SOURCE_LINK_ = 'https://github.com/yksi/jBean';
 _STAT._PUBLISH_YEAR_ = 2014;
 _STAT._PUBLISH_MONTH_ = 12;
 _STAT._PUBLISH_DAY_ = 20;
-_STAT._PUBLISH_DATE_ = function() { return new Date( [_STAT._PUBLISH_YEAR_, _STAT._PUBLISH_MONTH_, _STAT._PUBLISH_DAY_].join('-')  + ' 00:00'); }
+_STAT._PUBLISH_DATE_ =  new Date( [_STAT._PUBLISH_YEAR_, _STAT._PUBLISH_MONTH_, _STAT._PUBLISH_DAY_].join('-')  + ' 00:00');
 
 
-_STAT._PROP_INSERT_ = function( DOMElementrORs, prop, value )
+_STAT._PROP_INSERT_ = function( DOMElementrORs, prop, value, add )
 {
+	add === undefined ? add = 0 : add;
 	var DOMElements = !DOMElementrORs.length ? new Array(DOMElementrORs) : DOMElementrORs;
 	prop = typeof prop === 'string' ? new Array(prop) : prop;
 	DOMElements.forEach(function(DOMElement)
 	{
-		console.log(prop, value, DOMElements, prop.length);
 		switch( prop.length )
 		{
-			case 1: { DOMElement[prop[0]] = value; return DOMElement }
-			case 2: { DOMElement[prop[0]][prop[1]] = value; return DOMElement; }
-			case 3: { DOMElement[prop[0]][prop[1]][prop[2]] = value; return DOMElement; }
-			case 4: { DOMElement[prop[0]][prop[1]][prop[2]][prop[3]] = value; return DOMElement; }
+			case 1: { DOMElement[prop[0]] = _STAT._APP_PREP_(DOMElement[prop[0]], value, add); return DOMElement }
+			case 2: { DOMElement[prop[0]][prop[1]] = _STAT._APP_PREP_(DOMElement[prop[0]][prop[1]], value, add); return DOMElement; }
+			case 3: { DOMElement[prop[0]][prop[1]][prop[2]] = _STAT._APP_PREP_(DOMElement[prop[0]][prop[1]][prop[2]], value, add); return DOMElement; }
+			case 4: { DOMElement[prop[0]][prop[1]][prop[2]][prop[3]] = _STAT._APP_PREP_(DOMElement[prop[0]][prop[1]][prop[2]][prop[3]], value, add); return DOMElement; }
 		};
 	});
+}
+
+_STAT._APP_PREP_ = function(origin_value, value, add)
+{
+	switch(add) {
+		case 0: return value;
+		case 1: return origin_value + value;
+		case -1: return value + origin_value;
+		default: return undefined;
+	}
 }

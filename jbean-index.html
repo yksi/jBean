@@ -1,6 +1,28 @@
 <html>
 <head>
 	<script type="text/javascript" src="jbean-1.0.0.js"></script>
+	<link rel="stylesheet" href="styles/monokai.css">
+	<script src="highlight.pack.js"></script>
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded", function(event) {
+    		console.log("DOM fully loaded and parsed");
+  		});
+
+		$(document).on("ready", function()
+		{
+			hljs.initHighlightingOnLoad();
+
+			$("#try_it").on("click", function() {
+				$("#try_code_1").text(
+					eval($("#example_code_1").text()).entities.outerHTML
+				);
+
+				$("#try_code_1").css('display', 'block');
+
+				setTimeout( function() { $("#try_code_1").css('display', 'none'); }, 5000 ).fadeOut(300);
+			});
+		});
+	</script>
 	<style type="text/css">
 	body {
 		font-family: Arial;
@@ -19,23 +41,52 @@
 		width: 49%;
 		margin-left: auto;
 		margin-right: auto;
-		white-space: pre-wrap;
 	}
 
+	div.container {
+		width: 50%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	div#example_html_1 {
+		padding: 6px;
+		background-color: #abbbbb;
+	}
+	button#try_it {
+		background-color: #136623;
+		padding: 10px 100px;
+		border: 1px solid green;
+		border-radius: 50px;
+		color: white;
+		outline: none;
+		margin: 10px 30px;
+	}
 	</style>
 </head>
 <body>
-	<H1 class="h1_element" id="first_h1_element" align="center">Hi, I`m H1</H1>
-	<p class"p_element" id="first_p_element">
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eget tempor leo, in malesuada metus. Fusce condimentum dolor quis sollicitudin dapibus. Donec vel turpis a nisi auctor facilisis. Vestibulum dictum felis eget magna imperdiet, sit amet rhoncus elit vehicula. Proin in semper est, eget ultrices augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean suscipit, quam consectetur rhoncus varius, neque nibh tincidunt ante, ullamcorper interdum nisl odio a metus.
+	<H1 class="h1_element" id="title" align="center">jBean</H1>
+	<div class="container">
+	<pre>
+		<code class="javascript" id="example_code_1">
+$(document); // always DOM Element convert to jBean is supported
+$('h2'); // selector by tag name
+$('p.video'); // selector by tag name and class
+$('#category align=right'); // selector by id and property
+		</code>
+	</pre>
+	<button id="try_it">Try it</button>
+	<pre>
+		<code id="try_code_1" class="json" style="display:hidden">
 
-		Nam fermentum orci efficitur, vestibulum sem placerat, malesuada mauris. Maecenas eu convallis mauris. Quisque et consequat sapien. Suspendisse ligula felis, viverra non fermentum eu, lacinia ut sem. Sed bibendum sapien eu nibh faucibus faucibus. Nullam vitae ante auctor, dictum dolor sed, suscipit ex. Vivamus et ex dignissim leo viverra consectetur sed a tellus. Nullam dictum malesuada nisl, nec placerat orci aliquam id. In a imperdiet nulla. Nullam rhoncus lorem gravida mauris iaculis ultrices. Integer venenatis, massa id sagittis ultrices, risus eros euismod ante, ac auctor metus lectus non quam. Fusce vel erat at velit aliquam imperdiet. Proin ultrices aliquam sapien non tempor. Etiam tincidunt risus ut nulla sagittis, non commodo turpis consequat.
-
-		In porta quis elit vitae ultricies. Nunc nisl risus, congue eu nisl quis, rutrum feugiat odio. Proin ipsum urna, venenatis vitae placerat a, porttitor vitae erat. In hac habitasse platea dictumst. Duis tempus sit amet lorem eu varius. Proin dui enim, maximus quis varius non, finibus nec nisi. Fusce ac dapibus eros. Morbi varius at ligula at luctus. Ut id semper lacus, id lobortis dolor. Praesent aliquam, ante at tempus tincidunt, ante erat blandit odio, nec feugiat erat dolor et turpis. Integer lobortis elementum odio. Maecenas arcu augue, ornare vel molestie a, commodo eget est. Donec aliquet vehicula aliquet.
-
-		Sed vulputate fermentum maximus. Praesent blandit posuere ipsum et rhoncus. Cras porttitor nisl vitae rutrum blandit. Ut sit amet purus pellentesque sapien eleifend elementum sed ut est. Aliquam sed erat urna. Nulla non maximus libero. Maecenas posuere lacus sit amet fringilla aliquam. Pellentesque euismod nunc sed nunc gravida, sed porta lectus finibus. Suspendisse potenti. Pellentesque tempus libero ac metus interdum viverra. Nulla ultricies orci quis finibus viverra.
-
-		Maecenas vitae congue libero. Donec et cursus tellus, eget pretium tortor. Duis sed risus eleifend justo molestie accumsan egestas ac leo. Nunc a lacus at sapien euismod molestie id nec justo. Maecenas ut egestas lorem, id sagittis dui. Praesent ac convallis lacus. Fusce est diam, cursus non sapien sit amet, mattis commodo sem. Mauris blandit non mi porttitor pretium. Aenean mattis laoreet magna a mollis. Vestibulum mollis, urna vitae laoreet suscipit, lacus enim convallis magna, quis auctor lacus lectus vel neque. Sed in eros sed tellus maximus eleifend a vel velit.
-	</p>
+		</code>
+	</pre>
+	<div id="example_html_1">
+		<h2>Led Zeppelin Videos</h2>
+		<img src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSjEcMVm3QEpTZlBQ6Oh8zZjjlKgeeRyGtFc-SwkwttGysH8HQnkgdgg6Y">
+		<div id="category" align="right">
+			Rock, Classical Rock, Legends of rock
+		</div>
+	</div>
+	</div>
 </body>
 </html>
