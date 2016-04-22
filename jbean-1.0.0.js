@@ -201,6 +201,8 @@ jBeanManager.prototype.setPropDynamically = function( prop, value, add )
 
 jBeanManager.prototype.on = function(type, func)
 {	
+	// feature test_commit;
+	var a = 00;
 	var ActionListeners = new Array();
 	if(this.entitiesNotAlone())
 	{
